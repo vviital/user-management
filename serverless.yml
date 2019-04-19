@@ -1,0 +1,137 @@
+service: user-management
+
+package:
+  exclude:
+    - secrets/**
+    - .envrc
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 256
+  timeout: 3
+  stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:UpdateItem
+        # Permissions for stream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
+      Resource: { Fn::GetAtt: [ Users, Arn ] }
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: ${file(./secrets/${self:provider.stage}.json):tables.users.indexes.login}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: ${file(./secrets/${self:provider.stage}.json):tables.users.indexes.email} 
+  environment:
+    JWT_SECRET: ${file(./secrets/${self:provider.stage}.json):env.JWT_SECRET}
+    STAGE: ${self:provider.stage}
+
+functions:
+  createUser:
+    handler: dest/lambda.createUser
+    reservedConcurrency: 5
+    events:
+      - http:
+          path: /user
+          method: POST
+  getUserData:
+    handler: dest/lambda.getUserData
+    reservedConcurrency: 5
+    events:
+      - http:
+          path: /user
+          method: GET   
+  updateUserData:
+    handler: dest/lambda.updateUserData
+    reservedConcurrency: 5
+    events:
+      - http:
+          path: /user
+          method: PUT              
+  createToken:
+    handler: dest/lambda.createToken
+    reservedConcurrency: 5
+    events:
+      - http:
+          path: /user/token
+          method: POST
+  verifyToken:
+    handler: dest/lambda.verifyToken
+    reservedConcurrency: 5
+    events:
+      - http:
+          path: /user/token/verification
+          method: POST  
+  listenStream:
+    handler: dest/lambda.listenStream
+    events:
+      - stream:
+          type: dynamodb
+          arn: { Fn::GetAtt: [ Users, StreamArn ] }
+          batchSize: 1        
+
+resources:
+  Resources:
+    Users:
+      Type: 'AWS::DynamoDB::Table'   
+      Properties:
+        TableName: users
+        AttributeDefinitions:
+          -
+            AttributeName: app
+            AttributeType: S
+          -
+            AttributeName: id
+            AttributeType: S
+          - 
+            AttributeName: email
+            AttributeType: S
+          -
+            AttributeName: login
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: app
+            KeyType: HASH
+          - 
+            AttributeName: id 
+            KeyType: RANGE
+        LocalSecondaryIndexes:
+          - 
+            IndexName: email-index
+            KeySchema:
+              -
+                AttributeName: app
+                KeyType: HASH
+              -
+                AttributeName: email
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: login-index  
+            KeySchema:
+              - 
+                AttributeName: app
+                KeyType: HASH
+              -
+                AttributeName: login
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL        
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5   
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES 

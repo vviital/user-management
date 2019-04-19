@@ -1,0 +1,5 @@
+.serverless
+dest
+node_modules
+secrets
+.DS_Store

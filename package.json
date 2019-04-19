@@ -1,0 +1,29 @@
+{
+  "name": "users-auth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "vviital <vviital@tut.by>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/jsonwebtoken": "^8.3.2",
+    "aws-sdk": "^2.437.0",
+    "bcryptjs": "^2.4.3",
+    "http-status-codes": "^1.3.2",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/lodash": "^4.14.123",
+    "@types/uuid": "^3.4.4",
+    "nodemon": "^1.18.10",
+    "typescript": "^3.4.3"
+  },
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "compile": "rm -rf dest && tsc --build",
+    "watch": "tsc --watch"
+  }
+}

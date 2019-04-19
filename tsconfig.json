@@ -1,0 +1,19 @@
+{
+  "compileOnSave": true,
+  "exclude": [
+    "node_modules",
+    "**/*.spec.js"
+  ],
+  "compilerOptions": {
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "module": "CommonJS",
+    "noImplicitAny": true,
+    "outDir": "dest",
+    "rootDir": "src",
+    "strictNullChecks": true,
+    "target": "ESNext"
+  }
+}
