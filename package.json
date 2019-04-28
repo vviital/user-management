@@ -16,14 +16,18 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
     "@types/uuid": "^3.4.4",
+    "jest": "^24.7.1",
     "nodemon": "^1.18.10",
+    "ts-jest": "^24.0.2",
     "typescript": "^3.4.3"
   },
   "scripts": {
-    "start": "nodemon src/index.js",
     "compile": "rm -rf dest && tsc --build",
+    "start": "nodemon src/index.js",
+    "test": "jest",
     "watch": "tsc --watch"
   }
 }

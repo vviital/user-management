@@ -1,6 +1,6 @@
 import * as uuid from 'uuid';
 import * as bcrypt from 'bcryptjs';
-import { omitBy, isEmpty, pick } from 'lodash';
+import { pick } from 'lodash';
 import * as moment from 'moment';
 
 import { User, TokenRecord } from '../datasource/models';
@@ -72,7 +72,6 @@ class UserModel {
 
   verifyPassword(password: string): boolean {
     if (!this.options.hasHashedPassword) return true;
-    console.log('--- comparing', password, 'with', this.password)
     return bcrypt.compareSync(password, this.password || '');
   }
 

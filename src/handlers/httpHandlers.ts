@@ -1,6 +1,7 @@
 import * as httpStatus from 'http-status-codes';
 import { get, omit } from 'lodash';
 import { getVerificatorMode, chooseVerificator } from '../utils';
+import { VerificatorOptions, TokenVerificator } from '../utils/models';
 
 import { DataSource, User } from '../datasource/models';
 import {
@@ -11,22 +12,22 @@ import {
 import { UserModel } from '../models'
 import ErrorObject from '../error';
 
-const sendError = (error: ErrorObject): LambdaResponse => {
+export const sendError = (error: ErrorObject): LambdaResponse => {
   return {
     statusCode: error.toJSON().statusCode,
     body: JSON.stringify(error),
   };
-}
+};
 
-const sendResponse = (response: any, statusCode: number = httpStatus.OK): LambdaResponse => {
+export const sendResponse = (response: any, statusCode: number = httpStatus.OK): LambdaResponse => {
   return {
     statusCode,
     body: JSON.stringify(response),
   };
-}
+};
 
-function withErrorHandling() {
-  return function(_: any, __: string, descriptor: PropertyDescriptor) {
+export const withErrorHandling = () => {
+  return (_: any, __: string, descriptor: PropertyDescriptor) => {
       const originalMethod = descriptor.value;
       descriptor.value = async function(...args: any): Promise<LambdaResponse> {
         try {
@@ -40,13 +41,13 @@ function withErrorHandling() {
   }
 }
 
-function withAuthorization() {
-  return function(_: any, __: string, descriptor: PropertyDescriptor) {
+export const withAuthorization = () => {
+  return (_: any, __: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
     descriptor.value = async function(event: GenericHTTPEvent): Promise<LambdaResponse> {
       const authorization: string = get(event, 'headers.Authorization', '') || '';
       const token = authorization.replace('Bearer ', '');
-      const verificator = chooseVerificator(token, { 
+      const verificator: TokenVerificator = this.chooseVerificator(token, { 
         datasource: this.datasource,
         mode: getVerificatorMode(event),
       });
@@ -65,6 +66,10 @@ class HttpHandlers {
 
   }
 
+  chooseVerificator(token: string, options: VerificatorOptions) {
+    return chooseVerificator(token, options);
+  }
+
   @withErrorHandling()
   async createUser(event: GenericHTTPEvent): Promise<LambdaResponse> {
     const data: UserCreationData = JSON.parse(event.body || '');
@@ -73,7 +78,7 @@ class HttpHandlers {
     if (ErrorObject.isErrorObject(result)) {
       return sendError(result);
     }
-    return sendResponse(result, httpStatus.CREATED);
+    return sendResponse(new UserModel(result).getPublicFields(), httpStatus.CREATED);
   }
 
   @withErrorHandling()
@@ -98,7 +103,6 @@ class HttpHandlers {
   @withErrorHandling()
   @withAuthorization()
   async verifyToken(event: GenericHTTPEvent): Promise<LambdaResponse> {
-    console.log('--- event.user ---', event.user);
     return sendResponse(event.user);
   }
 
@@ -129,7 +133,7 @@ class HttpHandlers {
     }
     const forbiddenFields = ['id', 'login', 'email', 'app', 'tokens', 'oldPasswords'];
     const mergedUser = { ...userOrError, ...omit(userData, forbiddenFields) };
-    const userModel = new UserModel(mergedUser)
+    const userModel = new UserModel(mergedUser, { hasHashedPassword: true, app: this.datasource.getBaseID() })
     await this.datasource.update(event.user.id, userModel.getUser())
     return sendResponse(new UserModel(mergedUser).getPublicFields());
   }

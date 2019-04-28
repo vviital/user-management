@@ -4,14 +4,14 @@ export type GenericHTTPEvent = {
   body: string|null
   headers: { [key: string]: string }|null
   httpMethod: string
-  multiValueHeaders: { [key: string]: string[] }|null
-  multiValueQueryStringParameters: { [key: string]: string[] }|null
-  path: string
-  pathParameters: any,
-  queryStringParameters: { [key: string]: string }|null
-  requestContext: object,
-  resource: string
-  stageVariables: any,
+  multiValueHeaders?: { [key: string]: string[] }|null
+  multiValueQueryStringParameters?: { [key: string]: string[] }|null
+  path?: string
+  pathParameters?: any,
+  queryStringParameters?: { [key: string]: string }|null
+  requestContext?: object,
+  resource?: string
+  stageVariables?: any,
   user?: TokenPayload,
 }
 

@@ -1,16 +1,10 @@
 import * as jwt from 'jsonwebtoken';
 
 import config from '../config';
-import { TokenPayload } from './models';
+import { TokenPayload, VerificatorOptions, VerificatorMode, TokenVerificator } from './models';
 import { DataSource, User } from '../datasource/models';
 import { GenericHTTPEvent } from '../handlers/models';
 import ErrorObject from '../error';
-
-export type VerificatorMode = 'strict'|'light';
-
-interface TokenVerificator {
-  verify(options?: jwt.VerifyOptions): Promise<TokenPayload | false>
-}
 
 export class LightVerificator implements TokenVerificator {
   constructor(protected token: string) {
@@ -47,11 +41,6 @@ export class StrictVerificator extends LightVerificator {
     if (!hasToken) return false;
     return initialVerificationResult;
   }
-}
-
-export type VerificatorOptions = {
-  datasource: DataSource<User>
-  mode: VerificatorMode
 }
 
 export const chooseVerificator = (token: string, options: VerificatorOptions): TokenVerificator => {

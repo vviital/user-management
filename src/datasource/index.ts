@@ -1,5 +1,7 @@
 import DynamoDataSource from './dynamo';
+import InMemoryDataSource from './inmemory';
 
 export {
-  DynamoDataSource
+  DynamoDataSource,
+  InMemoryDataSource
 }
