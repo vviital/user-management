@@ -1,9 +1,9 @@
 language: node_js
 
-matrix:
-  include:
-    - node_js: "8.10"
-    - node_js: "10.13.0"
+# matrix:
+#   include:
+#     - node_js: "8.10"
+#     - node_js: "10.13.0"
 
 git:
   quiet: true
@@ -21,12 +21,17 @@ stages:
 jobs:
   include:
     - stage: test
+      node_js:
+        - "8.10"
+        - "10.13.0"
       script:
         - yarn test
+        - echo $PATH
     - stage: build
       script:
-        - echo "building"
+        - echo "building" && echo $PATH
     - stage: deploy
+      if: branch = master
       script:
         - echo "deploying"
 
