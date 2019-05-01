@@ -14,4 +14,4 @@ script:
   - yarn test
 
 after_success:
-  - yarn run compile
+  - echo $TRAVIS_TEST_RESULT
