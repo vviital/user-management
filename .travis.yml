@@ -21,17 +21,16 @@ stages:
 jobs:
   include:
     - stage: test
-      node_js:
-        - "8.10"
-        - "10.13.0"
+      node_js: "8.10"
       script:
         - yarn test
-        - echo $PATH
-    - stage: build
+    - node_js: "10.13.0"
       script:
-        - echo "building" && echo $PATH
+        - yarn test    
     - stage: deploy
       if: branch = master
+      before_script:
+        - yarn run compile
       script:
         - echo "deploying"
 
