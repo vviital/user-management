@@ -5,6 +5,18 @@ matrix:
     - node_js: "8.10"
     - node_js: "10.13.0"
 
+jobs:
+  include:
+    - stage: test
+      script:
+        - echo "testing"
+    - stage: build
+      script:
+        - echo "building"
+    - stage: deploy
+      script:
+        - echo "deploying"    
+
 git:
   quiet: true
   depth: 5
