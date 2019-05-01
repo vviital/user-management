@@ -1,9 +1,12 @@
 language: node_js
 
-# matrix:
-#   include:
-#     - node_js: "8.10"
-#     - node_js: "10.13.0"
+node_js:
+  - "8.10"
+  - "10.13.0"
+os:
+  - linux
+  - osx
+  - windows
 
 git:
   quiet: true
@@ -21,12 +24,8 @@ stages:
 jobs:
   include:
     - stage: test
-      node_js: "8.10"
       script:
-        - yarn test
-    - node_js: "10.13.0"
-      script:
-        - yarn test    
+        - yarn test     
     - stage: deploy
       if: branch = master
       node_js: "8.10"
