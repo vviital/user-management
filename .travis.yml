@@ -17,7 +17,6 @@ before_install:
 
 stages:
   - test
-  - build
   - deploy
 
 jobs:
